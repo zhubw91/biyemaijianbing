@@ -1,0 +1,64 @@
+{% extends "event/create_event.html" %}
+{% block title %}Edit Event{% endblock %}
+{% block actionurl%}{% url 'edit_event' topic_id %}{% endblock %}
+{% block backurl %}{% url 'in_topic' topic_id %}{% endblock %}
+{% block submitbtnval %} Save {% endblock %}
+{% block extendtable %}
+<tr>
+	<td>
+		Participants({{participants|length}}/{{form.max_participants.value}}):
+		{% if participants|length < form.max_participants.value %}
+		<a href="#" class="button" data-toggle="modal" data-target="#add-participant-modal"> &plus; add a new participant</a>
+		{% endif %}
+		<ul>
+		{% for participant in participants %}
+		<li>{{participant.user.username}}<a onclick="delete_confirmation('{% url 'delete_participant' topic_id participant.user.username %}', 'participant')">&times;</a> </li>
+		{% endfor %}
+		</ul>
+	</td>
+</tr>
+{% endblock %}
+
+{% block extendmodal %}
+<div id="add-participant-modal" class="modal fade text-center" role="dialog">
+	<div class="modal-dialog" role="document" style="display: inline-block; ">
+        <div class="modal-content inline-block">
+        	<div id="add-participant-modal-content" >
+		    	<div class="modal-body">
+		      		<form id="add-participant-form" action="{% url 'add_participant' topic_id%}" method="post">
+					    <div class="modal-body">
+					    	<div id="participant-form-div">
+					    		{% for field in participant_form.visible_fields %}
+								<div class='error'>{{field.errors}}</div>
+								{% endfor %}
+								{% for error in participant_form.non_field_errors %}
+								<p class='error'>{{ error }}</p>
+								{% endfor %}
+								<div class='input-group add-participant-group'>
+								  {% for field in participant_form.visible_fields %}
+								  {{field}}
+								  {% endfor %}
+								</div>
+								{% for field in participant_form.hidden_fields %}
+								{{field}}
+								{% endfor %}
+						    </div>
+						    {% csrf_token %} 
+					    </div>
+					    <div class="modal-footer">
+					      <button type="submit" class="btn btn-primary">Add</button>
+					      <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+					    </div>
+					</form>
+
+		  		</div>
+          	</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+
+			
+				
+			  

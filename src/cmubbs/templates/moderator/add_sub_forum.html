@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Add a Sub Forum{% endblock %}
+{% block body %}
+
+<ol class="breadcrumb red-border">
+  <li><a href="{% url 'cmu_home' %}"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+  <li class="active"><a href="{% url 'manage_forums' %}"><span class="glyphicon glyphicon-list-alt"></span> Manage Forums</a></li>
+  <li class="active">{% block breadcrumbloc %} Add Forum {% endblock %}</li>
+</ol>
+
+<div class="{% block editcolwid %}col-md-6 col-md-offset-3{% endblock %}">
+  <table class="table homepage-forum-table">
+    <tr class="title-bar"><td colspan=2><h4>{% block edittitle %} Add a New Forum {% endblock %} </h4></td></tr>
+    <tr class="active">
+      <td class="col-sm-1">
+        <form class="form-edit-profile " method="post" action="{% block actionurl %}{% url 'add_sub_forum' father_forum_name %}{% endblock actionurl %}">
+          
+          {% for field in form.visible_fields %}
+          {{field.label_tag}}{{field}}
+          <div class="error">{{field.errors}}</div>
+          {% endfor %}
+          
+          {% for error in form.non_field_errors %}
+          <p class="error">{{ error }}</p>
+          {% endfor %}
+
+          <table class="table-condensed center-block">
+            <tbody class="center-block">
+            <tr class="center-block">
+              <td><input type="submit" class="btn btn-primary btn-block" value="Save"/></td>
+              <td><a href={%url 'manage_forums'%}><input type="button" class="btn btn-default " value="Cancel"/></td>
+            </tr>
+          </tbody>
+          </table>
+          {% for field in form.hidden_fields %}
+          {{field}}
+          {% endfor %}
+          {% csrf_token %}
+        </form>
+      </td>
+       {% block moderators %} {%endblock%}
+    </tr>
+  </table>
+</div>
+{% endblock body %}

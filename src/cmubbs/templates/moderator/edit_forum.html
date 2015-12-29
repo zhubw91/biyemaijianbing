@@ -1,0 +1,40 @@
+{% extends "moderator/add_sub_forum.html" %}
+{% block title %}Edit Sub Forum{% endblock %}
+{% block actionurl %}{% url 'edit_forum' forum_name %}{% endblock actionurl %}
+{% block edittitle %} Edit Forum {% endblock %}
+{% block editcolwid %}col-md-10 col-md-offset-1{% endblock %}
+{% block breadcrumbloc %}Edit Forum {% endblock %}
+{% block moderators %} 
+<td class="col-sm-1">
+	<form method="post" action="{% url 'edit_moderator' forum_name%}">
+	  <label>Moderators:</label>
+	  <ul>
+	  {% for userinfo in moderators %}
+	    <li>  {{userinfo.user}} {% if delete_permission %}
+	    	<a onclick="delete_confirmation('{% url 'delete_moderator' forum_name userinfo.user.username %}', 'moderator')">&times;</a>
+	    	{% endif %}
+	    </li>
+	  {% endfor %}
+	  </ul>
+
+	  {% for field in moderator_form.visible_fields %}
+	  <div class="error">{{field.errors}}</div>
+	  {% endfor %}
+	  {% for error in moderator_form.non_field_errors %}
+	  <p class="error">{{ error }}</p>
+	  {% endfor %}
+
+	  <div class="input-group add-moderator-group col-md-12">
+	    {% for field in moderator_form.visible_fields %}
+	    {{field}}
+	    {% endfor %}
+	    <button type="submit" class="btn btn-primary">Add</button></td>
+	  </div>
+	 
+	  {% for field in moderator_form.hidden_fields %}
+	  {{field}}
+	  {% endfor %}
+	  {% csrf_token %}
+	</form>
+</td>
+{%endblock%}

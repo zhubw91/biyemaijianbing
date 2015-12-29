@@ -1,0 +1,1 @@
+{"successful":{{successful|lower}}, "html":"{% spaceless %}{% autoescape off %}{% include 'event/add_participant.html' %}{% endautoescape %}{% endspaceless %}"}

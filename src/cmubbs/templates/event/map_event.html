@@ -1,0 +1,5 @@
+<div class='event-info-div'>
+<a href='{% url 'in_topic' event.topic.id %}'><big>{{event.topic.title}}</big></a>
+<div class='font-grey'>{{ event.time_period.start|date:"M. d" }}, {{ event.time_period.start|time:"H:i" }} - {{ event.time_period.end|date:"M. d" }}, {{ event.time_period.end|time:"H:i" }}</div>
+<div>{{event.description|linebreaks}}</div>
+</div>

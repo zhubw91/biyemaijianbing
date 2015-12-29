@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="the online forum for cmu">
+    <meta name="author" content="BiYeMaiJianBing">
+
+    <title>{% block title %}CMU BBS{% endblock %}</title>
+
+    {% load staticfiles %}
+    <!-- Bootstrap core CSS -->
+    <link type="text/css"  href="{% static 'css/bootstrap.css' %}" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link type="text/css" href="{% static 'css/cmubbs.css' %}" rel="stylesheet">
+    <link rel="shortcut icon" type="image/png" href="{% static 'images/icon.png' %}">
+
+    <!-- JavaScripts -->
+    <script type="text/javascript" src="{% static 'js/jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/bootbox.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/cmubbs.js' %}"></script>
+
+    {% block css %}{% endblock %}
+
+  </head>
+  <input id="home-url" type="hidden" value="{% url 'cmu_home' %}">
+  <input id="notification-url" type="hidden" value="{% url 'get_notifications' %}">
+  {% block urls %}{% endblock %}
+  <body>
+    <div class="container">
+
+      <!-- The justified navigation menu is meant for single line per list item.
+           Multiple lines will require custom code not provided by Bootstrap. -->
+      <div class="masthead">
+        <nav class="navbar navbar-default red-border">
+            <div class="navbar-header">
+              <a class="navbar-brand" href="{% url 'cmu_home' %}"><span class="glyphicon glyphicon-education"></span> CMU BBS</a>
+            </div>
+            {% block navright %}
+            <ul class="nav  navbar-nav pull-right margin-right20">
+              {% if user and user.is_active %}
+              <li class="dropdown">
+                <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-bell"></span><span class="badge badge-notify" id="notify-badge"></span></a>
+                <ul class="dropdown-menu" id="notification-dropdown">
+                </ul>
+              </li>
+              {% endif %}
+
+              <li><a href="{% url 'hot_topics' %}"><span class="glyphicon glyphicon-fire"></span> Hot topics</a></li>
+
+              {% if user and user.is_active %}
+              
+              <input type="hidden" name="islogin" value="yes"/>
+              <li class="dropdown" id="user-profile-dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ user.username }}<span class="caret"></span></a>
+                <ul class="dropdown-menu dropdown-menu-right">
+                  <li><a href="{%url 'user_profile' user.username%}"><span class="glyphicon glyphicon-user"></span> Profile Page</a></li>
+                  {% if user.userinfo.user_group < 3 %}
+                  <li><a href="{%url 'manage_forums'%}"><span class="glyphicon glyphicon-list-alt"></span> Manage Forums</a></li>
+                  {% endif %}
+                  <li><a href="{% url 'get_all_messages' %}"><span class="glyphicon glyphicon-envelope"></span> Messages</a></li>
+                  <li role="separator" class="divider"></li>
+                  <li><a class="btn btn-link" href="{%url 'logout'%}" id="logout-btn"><span class="glyphicon glyphicon-log-out"></span> Log out</a></li>
+                </ul>
+              </li>
+            {% else %}
+              <input type="hidden" name="islogin" value="no"/>
+              <li><a href="#" data-toggle="modal" data-target="#login-modal"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+            {% endif %}
+            </ul>
+            {% endblock navright %}
+        </nav>
+      </div>
+
+      {% block body %}<h1>Body</h1>{% endblock %}
+      <!-- Site footer -->
+      <footer class="footer">
+        <p class="font-white">&copy; BiYeMaiJianBing 2015</p>
+      </footer>
+    </div> <!-- /container -->
+    
+    <!-- Login Modal -->
+    <div class="modal fade text-center" id="login-modal" tabindex="-1" role="dialog">
+       <div class="modal-dialog" role="document" style="display: inline-block; ">
+        <div class="modal-content">
+          
+          <div id="auth-forms">
+            <form id="login-form" action="{% url 'nav_login' %}" method="post">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">User Login</h4>
+              </div>
+              <div class="modal-body">
+                <input name="username" class="form-control" type="text" placeholder="Username" required>
+                <input name="password" class="form-control" type="password" placeholder="Password" required>
+                <div id="text-login-msg"></div>
+                {% csrf_token %} 
+              </div>
+              <div class="modal-footer">
+                <button type="submit" class="btn btn-lg btn-primary btn-block">Login</button>
+                <a class="btn btn-link" href= {% url "reset_password" %}>Forget password?</a>
+                <div>Do not have an account?<button id="login-register-btn" type="button" class="btn btn-link">Register</button></div>
+              </div>
+            </form>
+            <form id="register-form" action="{% url 'register' %}" method="post" style="display:none;">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">User Register</h4>
+              </div>
+
+              <div id="register-inputs" class="modal-body">
+                <input name="username" class="form-control" type="text" placeholder="Username" required>
+                <input name="password1" class="form-control" type="password" placeholder="Password" required>
+                <input name="password2" class="form-control" type="password" placeholder="Confirm Password" required>
+                <input name="email" class="form-control" type="text" placeholder="E-mail" required>
+                <div id="text-register-msg"></div>
+                {% csrf_token %} 
+              </div>
+             
+              <div class="modal-footer">
+                <button type="submit" class="btn btn-lg btn-primary btn-block">Register</button>
+                <div>Already have an account?<button id="register-login-btn" type="button" class="btn btn-link">Login</button></div>
+              </div>
+              
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

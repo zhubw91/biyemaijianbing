@@ -1,0 +1,30 @@
+
+<table class='table table-bordered table-hover session-table' >
+    {% if favorite_topics %}
+    <tr class='title-bar'>
+        <td>Title</td>
+        <td>Author</td>
+        <td>Last Reply</td>
+        <td>View</td>
+        <td>Comments</td>
+        <td>Like</td>
+        <td>Last Reply</td>
+    </tr>
+    {% else %}
+    <p>You have no favourites topics.</p>
+    {% endif %}
+    {% for topic in favorite_topics %}
+        <tr class='active'>
+            <td class='topic-tag inline-block'>
+                <a href='{% url 'in_topic' topic.id %}' class='topic-title'>{{topic.title|linebreaks}}</a>
+                <div>{% for tag in topic.tag_list %}[{{tag.name}}]{% endfor %}</div>
+            </td>
+            <td><a href='{% url 'user_profile' topic.user.username %}'>{{topic.user.username}}</td>
+            <td><a href='{% url 'user_profile' topic.last_reply %}'>{{topic.last_reply}}</td>
+            <td>{{topic.view_count}}</td>
+            <td>{{topic.comments}}</td>
+            <td>{{topic.like_count}}</td>
+            <td>{{topic.get_time_lastreply}}</td>
+        </tr>
+    {% endfor %}
+</table>

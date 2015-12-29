@@ -1,0 +1,59 @@
+<!--Own Events-->
+{% if own_events %}
+<table class='table table-bordered table-hover event-table' >
+	<tr class='title-bar'>
+		<td>In Forum</td>
+		<td>Title</td>
+		<td>Participants</td>
+		<td>Start On</td>
+	</tr>
+	{% for event in own_events %}
+		<tr class='active'>
+			<td><a href='{% url 'in_forum' event.topic.forum.name %}'>{{event.topic.forum.name}}</a></td>
+			<td>
+				<a href='{% url 'in_topic' event.topic.id %}'>{{event.topic.title}}</a>
+			</td>
+			<td>{{event.participants.all|length}}/{{event.max_participants}}</td>
+			<td>{{ event.time_period.start|date:"M. d, Y" }}, {{ event.time_period.start|time:"H:i" }}</td>
+		</tr>
+	{% endfor %}	
+</table>
+<div class='pagination topic-right'>
+    <span class='step-links'>
+		<ul class='pager list-inline'>
+	        {% if own_events.has_previous %}
+	        <li>
+	        	<a href='#events?page={{ own_events.previous_page_number }}' onClick=\"profileSidebar('{% url 'user_own_events' user_info.user.username %}?page={{ own_events.previous_page_number }}')\" class='page-btn'>
+	            	<span class='glyphicon glyphicon-triangle-left' aria-hidden='true'></span>
+	            </a>
+	        </li>
+	        {% endif %}
+	        <li><span class='current'>Page {{ own_events.number }} of {{ own_events.paginator.num_pages }}.</span></li>
+	        {% if own_events.has_next %}
+	        <li>
+	        	<a href='#events?page={{ own_events.next_page_number }}' onClick=\"profileSidebar('{% url 'user_own_events' user_info.user.username %}?page={{ own_events.next_page_number }}')\" class='page-btn'>
+	            	<span class='glyphicon glyphicon-triangle-right' aria-hidden='true'></span>
+	            </a>
+	        </li>
+	        {% endif %}
+	        <li>
+	    		<select id='page-selector' name='page_num' class='page-select'>
+				{% for page_index in pages %}
+					{% if page_index %}
+					<option value='{{forloop.counter}}' selected='selected'>{{forloop.counter}}</option>
+					{% else %}
+				  	<option value='{{forloop.counter}}'>{{forloop.counter}}</option>
+				  	{% endif %}
+				 {% endfor %}
+				</select>
+			</li>
+			<li>
+				<button class='btn btn-default go-btn' aria-label='Left Align' onClick=\"gotoPage('{% url 'user_own_events' user_info.user.username %}')\">Go</button>
+			</li>
+		</ul>
+    </span>
+</div>
+{% else %}
+<p> User has not created any events. </p>
+{% endif %}
+

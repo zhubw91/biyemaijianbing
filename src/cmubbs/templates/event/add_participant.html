@@ -1,0 +1,16 @@
+<div class='input-group add-moderator-group col-md-12'>
+  {% for field in participant_form.visible_fields %}
+  {{field|addslashes}}
+  {% endfor %}
+</div>
+
+{% for field in participant_form.visible_fields %}
+<div class='error'>{{field.errors|addslashes}}</div>
+{% endfor %}
+{% for error in participant_form.non_field_errors %}
+<p class='error'>{{ error|addslashes }}</p>
+{% endfor %}
+
+{% for field in participant_form.hidden_fields %}
+{{field|addslashes}}
+{% endfor %}

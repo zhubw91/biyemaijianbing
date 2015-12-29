@@ -1,0 +1,45 @@
+<div>
+  <ul class='nav nav-tabs' role='tablist'>
+    <li role='presentation' class='active'><a href='#self' aria-controls='self' role='tab' data-toggle='tab'>Self Activities</a></li>
+    {% if user and user.is_active and is_self %}
+    <li role='presentation'><a href='#follow' aria-controls='follow' role='tab' data-toggle='tab'>Followings Activities</a></li>
+    {% endif %}
+  </ul>
+  <div class='tab-content'>
+    <div role='tabpanel' class='tab-pane active' id='self'>
+      <div class='activity-feed'>
+        {% for item in activities_self %}
+        <div class='feed-item'>
+          <div class='date'>{{ item.0 }}</div>
+          {% for subitem in item.1 %}
+              {% if subitem.0 == 'topic' %}
+                  <div class='text'><a href=\"{% url 'user_profile' subitem.2.user.username %}\">{{ subitem.2.user.username }}</a> post a topic <a href=\"{% url 'in_topic' subitem.2.id %}\">{{ subitem.2.title }}</a></div>
+              {% elif subitem.0 == 'event' %}
+                  <div class='text'><a href=\"{% url 'user_profile' subitem.1.username %}\">{{ subitem.1.username }}</a> will attend the event <a href=\"{% url 'in_topic' subitem.2.topic.id %}\">{{ subitem.2.topic.title }}</a></div>
+              {% endif %}
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% if user and user.is_active and is_self %}
+    <div role='tabpanel' class='tab-pane' id='follow'>
+      <div class='activity-feed'>
+        {% for item in activities %}
+        <div class='feed-item'>
+          <div class='date'>{{ item.0 }}</div>
+          {% for subitem in item.1 %}
+              {% if subitem.0 == 'topic' %}
+                  <div class='text'><a href=\"{% url 'user_profile' subitem.2.user.username %}\">{{ subitem.2.user.username }}</a> post a topic <a href=\"{% url 'in_topic' subitem.2.id %}\">{{ subitem.2.title }}</a></div>
+              {% elif subitem.0 == 'event' %}
+                  <div class='text'><a href=\"{% url 'user_profile' subitem.1.user.username %}\">{{ subitem.1.user.username }}</a> will attend the event <a href=\"{% url 'in_topic' subitem.2.topic.id %}\">{{ subitem.2.topic.title }}</a></div>
+              {% endif %}
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+    
+</div>

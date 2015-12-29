@@ -1,0 +1,462 @@
+{% extends "base.html" %}
+{% block title %}{{topic.title}}{% endblock %}
+
+{% block body %}
+{% load staticfiles %}
+<script type="text/javascript" src="{% static 'js/new_posts.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/in_topic.js' %}"></script>
+<script src="https://apis.google.com/js/platform.js" async defer></script>
+<div id="fb-root"></div>
+
+<ol class="breadcrumb red-border">
+  <li><a href="{% url 'cmu_home' %}"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+  <li><a href="{% url 'sub_forum' topic.forum.father_forum.name %}">{{topic.forum.father_forum.name}}</a></li>
+  <li><a href="{% url 'in_forum' topic.forum.name %}">{{topic.forum.name}}</a></li>
+  <li class="active">{{topic.title}}</li>
+</ol>
+    <table class="table table-bordered table-hover topic-table" >
+        <tr class="sub-title-bar">
+            <td class="topic-tag font-white">
+                View:{{topic.view_count}}
+                <div class="topic-right">Comments:{{topic.comments}}</div>
+            </td>
+            <td>
+                {{topic.title}}
+                {% if user and user.is_active %}
+                    {% if topic.event %}
+                        {% if topic.event.public %}
+                            <button id="rsvp-btn" class="btn btn-primary" {% if not event_available or participated %} style="display:none;" {%endif%} onClick="rsvpEvent('{% url 'rsvp_event' topic.id %}')"> RSVP </button>
+                            <button id="undo-rsvp-btn" class="btn btn-success" {% if not participated %} style="display:none;" {%endif%} onClick="undoRsvpEvent('{%url 'undo_rsvp_event' topic.id%}')"> Undo RSVP </button>
+                        {% else %}
+                            
+                        
+                            <button class="btn btn-primary" id="apply-event-btn" data-toggle="modal" data-target="#apply-modal" {% if participated or not event_available %} style="display:none;" {%endif%}> Apply </button>
+                   
+                            <button id="drop-out-btn" class="btn btn-success" {% if not participated %} style="display:none;" {%endif%} onClick="dropOutEvent('{%url 'undo_rsvp_event' topic.id%}')"> Drop Out </button>
+                        {% endif %}
+                        {% if participated %}
+                        {% load tz %}
+                        {% localtime off %}
+                        <a href="http://www.google.com/calendar/event?action=TEMPLATE&text={{topic.title}}&dates={{topic.event.time_period.start|date:'Ymd\\THis\\Z'}}/{{topic.event.time_period.end|date:'Ymd\\THis\\Z'}}&details={{topic.event.description}}&location={{topic.event.location.formatted_address}}" target="_blank">
+                            <button class="btn btn-warning"> &plus; Add to Google Calendar</button>
+                        </a>
+                        {% endlocaltime %}
+                        {% endif %}
+                        {% ifequal topic.user.username user.username %}
+                        <a href={% url 'edit_event' topic.id %}><button class="btn btn-danger"> <span class="glyphicon glyphicon-pencil"></span> Edit </button></a>
+                        {% endifequal %}
+                    {% else %}
+                        {% ifequal topic.user.username user.username %}
+                            <a data-toggle="modal" data-target="#append-topic-modal" href="#"><button class="btn btn-primary append-topic-post-btn"> <span class="glyphicon glyphicon-pencil"></span> add more </button></a>
+                        {% endifequal %}
+                    {% endif %}
+
+
+
+                    <a href="#" class="topic-right" data-toggle="tooltip" data-placement="top" title="unlike the topic">
+                        <span id="liked-topic-btn" class="glyphicon glyphicon-heart" {% if not like %} style="display:none;" {%endif%} onClick="dislikeTopic('{% url 'dislike_topic' topic.id %}')"></span>
+                    </a>
+                    <a href="#" class="topic-right" data-toggle="tooltip" data-placement="top" title="like the topic">
+                <span id="like-topic-btn" class="glyphicon glyphicon-heart empty-heart" {% if like %} style="display:none;" {%endif%} onClick="likeTopic('{% url 'like_topic' topic.id %}')"></span>
+            </a>
+
+            {% if edit_title %}
+            <a href="#" class="topic-right"  data-toggle="tooltip" data-placement="top" title="unpin the topic">
+                <span id="down-topic-btn" class="glyphicon glyphicon-pushpin up-color" {% if not topic.upped %} style="display:none;" {%endif%} onClick="downTopic('{% url 'down_topic' topic.id %}')">
+                </span> 
+            </a>
+            <a href="#" class="topic-right"  data-toggle="tooltip" data-placement="top" title="pin the topic to the top">
+                <span id="up-topic-btn" class="glyphicon glyphicon-pushpin down-color" {% if topic.upped %} style="display:none;" {%endif%} onClick="upTopic('{% url 'up_topic' topic.id %}')"></span>
+            </a>
+            <a href="#" class="topic-right" data-toggle="tooltip" data-placement="top" title="unmark the topic">
+                <span id="normal-topic-btn" class="glyphicon glyphicon-queen up-color" {% if not topic.good_topic %} style="display:none;" {%endif%} onClick="normalTopic('{% url 'normal_topic' topic.id %}')"></span> 
+            </a>
+            <a href="#" class="topic-right" data-toggle="tooltip" data-placement="top" title="mark the topic as a good one">
+                <span id="good-topic-btn" class="glyphicon glyphicon-queen down-color" {% if topic.good_topic %} style="display:none;" {%endif%} onClick="goodTopic('{% url 'good_topic' topic.id %}')"></span>
+              </a>
+                {% endif %}
+            {% endif %}
+
+            </td>
+            <td>{{topic.created_on}}</td>
+        </tr>
+
+        {% if topic.event %}
+            {% ifequal posts.number 1 %}
+            <!--Event Info-->
+            <tr class="topic-body">
+                <td rowspan="2">
+                    {% if secret %}
+                    <ul class="non-dot-li">
+                        {% load staticfiles %}
+                        <li><img src="{% static 'images/annonymous.jpg' %}" class="userPic" alt="Annonymous"> </li>
+                        <li class="topic-name">Annonymous</li>
+                    </ul>
+                    {% else %}
+                    <ul class="non-dot-li">
+                        <li><img src="{% url 'profile_photo' topic.user.username %}" alt="{{topic.user.username}}" class="userPic"> </li>
+                        <li> 
+                            {% if user and user.is_active %}
+                            <a href="{% url 'get_messages_with' topic.user.username %}" class="msg" data-toggle="tooltip" data-placement="top" title="send messages"> <span class="glyphicon glyphicon-envelope"></span></a>
+                            {% endif %}
+                            <a href="{% url 'user_profile' topic.user.username %}" class="topic-name">{{topic.user.username}}</a>
+                        </li>
+                    </ul>
+                    {% endif %}
+                </td>
+                <td colspan="2">
+                    <p><label>Event Type:</label> {% if topic.event.public %} Public {% else %} Private {% endif %}</p>
+                    <p><label>Description:</label> {{topic.event.description}}</p>
+                    <p><label>Time:</label> {{topic.event.time_period.start}} - {{topic.event.time_period.end}}</p>
+                    <p><label>Location:</label> {{topic.event.location.formatted_address}}</p>
+                    <p>
+                        <label>Participants ({{topic.event.participants.all|length}}/{{topic.event.max_participants}}):</label>  
+                        {% for participant in topic.event.participants.all %}
+                        <li><a href={% url 'user_profile' participant.user.username %}>{{participant.user.username}}</a></li>
+                        {% endfor %}
+                    </p>
+                </td>
+            </tr>
+            <tr class="topic-body post-foot-border">
+                <td colspan="2">
+                    <a href="https://twitter.com/share" class="twitter-share-button" {count} data-text="[CMU BBS]{{topic.title}}" data-size="medium"></a>
+                    <div class="fb-share-button inline" data-href="http://{{ request.get_host }}{% url 'in_topic' topic.id %}" data-layout="button"></div>
+                    <div class="g-plus" data-action="share" data-href="http://{{ request.get_host }}{% url 'in_topic' topic.id %}" data-annotation="none"></div>
+                   
+                    <p class="aligh-right">posted: {{topic.created_on}}</p>
+                    </div>
+                </td>
+            </tr>
+            {% endifequal %}
+        {% endif %}
+
+        {% for post in posts %}
+        <tr class="topic-body">
+            <td rowspan="2">
+                {% if secret %}
+                <ul class="non-dot-li">
+                    {% load staticfiles %}
+                    <li><img src="{% static 'images/annonymous.jpg' %}" class="userPic" alt="Annonymous"> </li>
+                    <li class="topic-name">Annonymous</li>
+                </ul>
+                {% else %}
+                <ul class="non-dot-li">
+                    <li><img src="{% url 'profile_photo' post.user.username %}" alt="{{post.user.username}}" class="userPic"> </li>
+                    <li> 
+                        {% if user and user.is_active %}
+                        <a href="{% url 'get_messages_with' post.user.username %}" class="msg" data-toggle="tooltip" data-placement="top" title="send messages"> <span class="glyphicon glyphicon-envelope"></span></a>
+                        {% endif %}
+                        <a href="{% url 'user_profile' post.user.username %}" class="topic-name">{{post.user.username}}</a>
+                    </li>
+                </ul>
+                {% endif %}
+            </td>
+            <td colspan="2">
+            {% if post.reply_to %}
+            <div class="reply-to-post">
+                    {% if secret %}
+                    <div class="post-info space-left">Annonymous posted_on: {{post.reply_to.created_on}}</div>
+                    {% else %}
+                    <div class="post-info space-left">{{post.reply_to.user.username}} posted_on: {{post.reply_to.created_on}}</div>
+                    {% endif %}
+                    <div class="post-text space-left">
+                        
+                        {% if post.reply_to.plain_text %}
+                            {% autoescape on %}
+                                {{post.reply_to.text|urlize|linebreaks}}
+                            {% endautoescape %}
+                        {% else %}
+                            {% autoescape off %}
+                                {{post.reply_to.text|urlize|linebreaks}}
+                            {% endautoescape %}
+                        {% endif %}
+                        
+                    </div>
+            </div>
+            {% endif %}
+            {% if forloop.first and not posts.has_previous and topic.tags.first.name == "Vote" %}
+                {% if user and user.is_active %}
+                    {% if userinfo in poll.polled_by.all %}
+                        <div class="panel panel-primary">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">{{ poll.question }}</h3>
+                            </div>
+                            <div class="panel-body">
+                                {% for choice in poll.choices.all %}
+                                
+                                    {% for key,value in vote_per.iteritems %}
+                                        {% if key == choice %}
+                                            <strong>{{ choice.choice }}</strong><span class="pull-right">{{ value }}% / {{ choice.votes }}</span>
+                                            <div class="progress">
+                                              <div class="progress-bar" role="progressbar"  aria-valuemin="0" aria-valuemax="100" style="width: {{ value }}%;">
+                                              </div>
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                
+
+                                {% endfor %}
+                                    
+                            </div>
+                        </div>
+                    {% else %}
+                        <form action="{% url 'vote' topic.id %}" method="post">
+                            {% csrf_token %}
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">{{ poll.question }}</h3>
+                                </div>
+                                <div class="panel-body">
+                                    <ul class="list-group">
+                                        {% for choice in poll.choices.all %}
+                                        <li class="list-group-item">
+                                            {% if poll.is_multiple %}
+                                                <div class="checkbox">
+                                                    <label>
+                                                        <input type="checkbox" name="checkbox" value="{{ forloop.counter }}">
+                                                        {{ choice.choice }}
+                                                    </label>
+                                                </div>
+                                            {% else %}
+                                                <div class="radio">
+                                                    <label>
+                                                        <input type="radio" name="optionsradio" value="{{ forloop.counter }}">
+                                                        {{ choice.choice }}
+                                                    </label>
+                                                </div>
+                                            {% endif %}
+                                        </li>
+                                        {% endfor %}
+                                        
+                                    </ul>
+                                </div>
+                                <div class="panel-footer">
+                                    <button type="submit" class="btn btn-primary btn-md">Vote</button>
+                                </div>
+                            </div>
+                        </form>
+                    {% endif %}
+                {% else %}
+                    <h3>To vote or view the result, you have to login first.</h3>
+                {% endif %}
+            {% endif %}
+                
+                <div class="post-text">
+                    {% if post.reply_to or post.plain_text%}
+                        {% autoescape on %}
+                            {{post.text|urlize|linebreaks}}
+                        {% endautoescape %}
+                    {% else %}
+                        {% autoescape off %}
+                            {{post.text|urlize|linebreaks}}
+                        {% endautoescape %}
+                    {% endif %}
+                </div>
+                
+                <div>
+                    {% for image in post.post_image_list %}
+                        <img src="{% url 'post_images' image.id %}" class="postImage" alt="PostImage{{image.id}}">
+                    {% endfor %}
+                </div>
+                <div>
+                    {% for sub_post in post.sub_post_list %}
+                        <hr><div class="font-bold">Supplement ( {{sub_post.created_on}} )</div>
+                        <div>
+                        {% autoescape on %}
+                            {{sub_post.text|urlize}}
+                        {% endautoescape %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </td>
+        </tr>
+        <tr class="topic-body post-foot-border">
+            <td colspan="2">
+                {% if commentable %}
+                    <div data-toggle="tooltip" data-placement="left" title="reply to this floor" class="reply-to-comment-tag">
+                        <a data-toggle="modal" data-target="#comment-modal" data-id="{{post.id}}" class="reply-post" href="#">
+                            <span class="glyphicon glyphicon-comment" aria-hidden="true"></span>
+                        </a>
+                    </div>
+                {% endif %}
+                {% if forloop.first and not posts.has_previous and topic.tags.first.name != "Event" %}
+                    <a href="https://twitter.com/share" class="twitter-share-button" {count} data-text="[CMU BBS]{{topic.title}}" data-size="medium"></a>
+                    <div class="fb-share-button inline" data-href="http://{{ request.get_host }}{% url 'in_topic' topic.id %}" data-layout="button"></div>
+                    <div class="g-plus" data-action="share" data-href="http://{{ request.get_host }}{% url 'in_topic' topic.id %}" data-annotation="none"></div>
+                {% endif %}
+                <p class="aligh-right floor-number">{{forloop.counter0|add:posts.start_index}} floor</p>
+                <p class="aligh-right post-date">posted: {{post.created_on}}</p>
+            </td>
+        </tr>
+        {% endfor %}
+        <tr class="topic-body"><td colspan="3">
+            <form action="{% url 'in_topic' topic.id %}" method="get">
+                <div class="pagination topic-right">
+                    <span class="step-links">
+                            <ul class="pager list-inline">
+                            {% if posts.has_previous %}
+                                <li><a href="?page={{ posts.previous_page_number }}" class="page-btn">
+                                    <span class="glyphicon glyphicon-triangle-left" aria-hidden="true"></span>
+                                </a></li>
+                            {% endif %}
+
+                            <li><span class="current">
+                                Page {{ posts.number }} of {{ posts.paginator.num_pages }}.
+                            </span></li>
+                            {% if posts.has_next %}
+                                <li><a href="?page={{ posts.next_page_number }}" class="page-btn">
+                                    <span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
+                                </a></li>
+                            {% endif %}
+                                <li>
+                                    <select name="page_num" class="page-select">
+                                                {% for page_index in post_pages %}
+                                                    {% if page_index %}
+                                                        <option value="{{forloop.counter}}" selected="selected">{{forloop.counter}}</option>
+                                                    {% else %}
+                                                    <option value="{{forloop.counter}}">{{forloop.counter}}</option>
+                                                {% endif %}
+                                              {% endfor %}
+                                            </select>
+                                        </li>
+                                        <li>
+                                            <button type="submit" class="btn btn-default go-btn" aria-label="Left Align">
+                                              Go
+                                            </button>
+                                        </li>
+                          </ul>
+                    </span>
+                </div>
+            </form>
+        </td></tr>
+        {% if user and user.is_active %}
+                <tr class="topic-body">
+                    <td>
+                        <ul class="non-dot-li">
+                            {% if secret %}
+                                {% load staticfiles %}
+                                <li><img src="{% static 'images/annonymous.jpg' %}" class="userPic" alt="Annonymous"> </li>
+                            {% else %}
+                                <li><img src="{% url 'profile_photo' user.username %}" alt="{{user.username}}" class="userPic"></li>
+                            {% endif %}
+                        </ul>
+                    </td>
+                    <td colspan="2">
+                        <form action="{% url 'in_topic' topic.id %}" method="post" enctype="multipart/form-data">
+                        {{form.reply_body}}
+                        <input type="hidden" id="plain-text" value=False>
+                        <div class="form-inline">
+                            <a class="btn btn-primary btn-add-image" onclick="add_image()">Add Image<span class="space-left glyphicon glyphicon-picture"></span></a>
+
+                            <div class="btn btn-primary btn-text-font" onclick="change_plain_text()" id="plain-text-div" title="reply-topic">{{form.plain_text}}{{form.plain_text.label}}</div>
+                            <a name="font-tag-btn" class="btn btn-primary btn-text-font" onclick="text_font('b', 'reply-body')">
+                                <span class="glyphicon glyphicon-bold"></span></a>
+                            <a name="font-tag-btn" class="btn btn-primary btn-text-font" onclick="text_font('i', 'reply-body')">
+                                <span class="glyphicon glyphicon-italic"></span></a>
+                            <a name="font-tag-btn" class="btn btn-primary btn-text-font" onclick="text_font('big', 'reply-body')">
+                                <span class="glyphicon glyphicon-font">+</span></a>
+                            <a name="font-tag-btn" class="btn btn-primary btn-text-font" onclick="text_font('small', 'reply-body')">
+                                <span class="glyphicon glyphicon-font">-</span></a>
+                            <a name="font-tag-btn" class="btn btn-primary btn-text-font" onclick="text_font('strike', 'reply-body')">
+                                <span class="glyphicon"><strike>A</strike></span></a>
+                            <a name="font-tag-btn" class="btn btn-primary btn-text-font" onclick="text_font('u', 'reply-body')">
+                                <span class="glyphicon"><u>U</u></span></a>
+                            <a name="font-tag-btn" class="btn btn-primary btn-text-font" onclick="text_font('mark', 'reply-body')">
+                                <span class="glyphicon"><mark>A</mark></span></a>
+
+                            <button type="submit" value="submit" class="btn btn-primary reply-btn space-left">
+                                <span class="glyphicon glyphicon-pencil">Reply</span></button>
+                            <a class="btn btn-primary reply-btn" data-toggle="modal" data-target="#preview-post-modal" data-url="{% url 'preview_post' %}" data-text-id="reply-body" href="" id="preview-btn">
+                                <span class="glyphicon glyphicon-play">Preview</span></a>
+                        </div>
+                        <ul id="image_list" class="page-btn">
+                        </ul>
+                        {% csrf_token %}
+                        </form>
+                    </td>
+                </tr>
+        {% else %}
+        <tr class="topic-body"><td colspan="3" class="font-bold font-grey text-align-center">--------login to reply to the topic--------</td></tr>
+        {% endif %}
+    </table>
+
+  <div class="modal fade text-center" id="comment-modal" tabindex="-1" role="dialog">
+   <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Comment</h4>
+      </div>
+      <form id="comment-form" action="{% url 'reply_comment' %}" method="post">
+        <div class="modal-body">
+            <input type="hidden" name="postId" id="postId" />
+            {{comment_form.reply_comment_body}}
+          <div id="text-comment-msg"></div>
+          {% csrf_token %} 
+        </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-lg btn-primary btn-block btn-submit-js">Post Comment</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% if apply_form %}
+<div class="modal fade text-center" id="apply-modal" tabindex="-1" role="dialog">
+   <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <form id="comment-form" action="{% url 'apply_for_event' topic.id %}" method="post">
+        <div class="modal-body">
+            {{apply_form.message}}
+          <div id="text-apply-msg"></div>
+          {% csrf_token %} 
+        </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-lg btn-primary">Apply</button>
+            <button type="button" data-dismiss="modal" aria-label="Close" class="btn btn-lg btn-default">Cancel</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<div class="modal fade text-center" id="append-topic-modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Add Post</h4>
+      </div>
+      <form id="comment-form" action="{% url 'add_sub_post' topic.id %}" method="post">
+        <div class="modal-body">
+            {{append_topic_form.append_topic_body}}
+          <div id="text-comment-msg"></div>
+          {% csrf_token %} 
+        </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-lg btn-primary btn-block btn-submit-js">Add</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade text-center" id="preview-post-modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Preview Post</h4>
+      </div>
+      <div class="modal-body">
+        {% autoescape off %}
+            <div id="post-font-text"></div>
+        {% endautoescape %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

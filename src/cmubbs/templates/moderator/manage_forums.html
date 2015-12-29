@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Manage Your Forums{% endblock %}
+{% block body %}
+
+<ol class="breadcrumb red-border">
+  <li><a href="{% url 'cmu_home' %}"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+  <li class="active"><span class="glyphicon glyphicon-list-alt"></span> Manage Forums</li>
+</ol>
+
+<!--All Father Forums-->
+{% if user.userinfo.user_group < 1 %}
+<table class="table table-bordered table-hover homepage-forum-table" >	
+	<tr class="title-bar">
+			<td colspan="3"><label>Manage Forum Set</label><a href="{% url 'add_father_forum' %}"> &plus; add a new forum</a></td>
+	</tr>
+	{% for forum in father_forum_set %}
+		<tr class="active">
+			<td class="forum-name"><a href="{% url 'sub_forum' forum.name %}">{{forum.name}}</td>
+			<td>{{forum.description}}</td>
+			<td>
+				<a href="{% url 'edit_forum' forum.name %}">Edit</a>
+				<a onclick="delete_confirmation('{% url 'delete_forum' forum.name %}', 'father_forum')">Delete</a>
+			</td>
+		</tr>
+	{% endfor %}	
+</table>
+{% endif %}
+
+<!--Own Father Forums-->
+{% for father_forum in my_father_forums %}
+<table class="table table-bordered table-hover homepage-forum-table" >	
+	<tr class="title-bar">
+			<td colspan="2"><label> Manage Forum [ <a href="{% url 'sub_forum' father_forum.name %}">{{father_forum.name}}</a> ] </label><a href="{% url 'add_sub_forum' father_forum.name %}"> &plus; add a new sub forum</a> </td>
+			<td>
+				<a href="{% url 'edit_forum' father_forum.name %}">Edit</a>
+				{% if user.userinfo.user_group < 1 %}
+					<a onclick="delete_confirmation('{% url 'delete_forum' father_forum.name %}', 'father_forum')">Delete</a>
+				{% endif %}
+			</td>
+	</tr>
+	{% for forum in father_forum.sub_forum.all %}
+		<tr class="active">
+			<td class="forum-name"><a href="{% url 'in_forum' forum.name %}">{{forum.name}}</td>
+			<td>{{forum.description}}</td>
+			<td>
+				<a href="{% url 'edit_forum' forum.name %}">Edit</a>
+				<a onclick="delete_confirmation('{% url 'delete_forum' forum.name %}', 'sub_forum')">Delete</a>
+			</td>
+		</tr>
+	{% endfor %}
+</table>
+{% endfor %}
+
+<!--Own Sub Forums-->
+{% if my_sub_forums %}
+<table class="table table-bordered table-hover homepage-forum-table" >	
+	<tr class="title-bar">
+			<td colspan="3"><label>Manage My Sub Forums</label></td>
+	</tr>
+	{% for forum in my_sub_forums %}
+		<tr class="active">
+			<td class="forum-name"><a href="{% url 'in_forum' forum.name %}">{{forum.name}}</td>
+			<td>{{forum.description}}</td>
+			<td>
+				<a href="{% url 'edit_forum' forum.name %}">Edit</a>
+			</td>
+		</tr>
+	{% endfor %}	
+</table>
+{% endif %}
+
+{% endblock body %}

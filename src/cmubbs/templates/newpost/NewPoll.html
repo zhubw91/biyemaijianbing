@@ -1,0 +1,30 @@
+{% extends "newpost/NewPost.html" %}
+{% block title %}New Poll{% endblock %}
+{% block css %} {% load staticfiles %} <script type="text/javascript" src="{% static 'js/create_poll.js' %}"></script> 
+{% endblock %}
+{% block actionurl %}{% url 'new_poll' forum.name %}{% endblock actionurl %}
+{% block tagcontent %} <label> Poll </label>{% endblock tagcontent %}
+{% block extendform %}
+<tr>
+	<td>
+		Question: 
+		{{ pollform.question }}
+		<div class="error">{{pollform.question.errors}}</div>
+		<br><br>
+		Allow multiple choices
+		{{ pollform.is_multiple }}
+	</td>
+	<td>
+		Edit Choices (At most 10):
+		<div id="p_scents">
+			{% for choice in choices %}
+		    <p>
+		    	<input type="text" class="p_scnt" size="20" name="{{choice.name}}" value="{{choice.value}}" />{% if choice.removable %} <a href="#">Remove</a> {% endif %}
+		    </p>		    
+		    {% endfor %}
+		</div>
+		<p><a href="#" id="addScnt"> Add Another choice </a></p>
+		<div class="error">{{ pollerror }}</div>
+	</td>
+</tr>
+{% endblock %}

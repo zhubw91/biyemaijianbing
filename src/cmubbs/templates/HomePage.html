@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}CMU BBS Home{% endblock %}
+{% block body %}
+<!---<ol class="breadcrumb">-->
+<!---  <li class="active"><span class="glyphicon glyphicon-home"></span> Home</li> -->
+<!---</ol> -->
+<table class="table table-bordered homepage-forum-table fixed" >
+    <tr class="title-bar">
+        <td>
+            Broadcasting
+            {% if user and user.is_active and user.userinfo.user_group < 2 and broadcast %}
+            <button type="button" class="btn btn-default btn-sm pull-right btn-font font-bold" data-toggle="modal" data-target="#broadcast-modal">
+            Edit
+            </button>
+            {% endif %}
+        </td>
+    </tr>
+    <tr class="active">
+        <td class="broadcast">{% autoescape on %}{{broadcast.text|urlize|linebreaks }}{% endautoescape %}</td>
+    </tr>
+</table>
+
+<div class="modal fade text-center" id="broadcast-modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Edit Broadcasting</h4>
+      </div>
+      <form method="post" action="{% url 'cmu_home' %}">
+          <div class="modal-body">
+            {{ broadcastform.text }}         
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Save changes</button>
+          </div>
+          {% csrf_token %}
+      </form>
+    </div>
+  </div>
+</div>
+
+<table class="table table-bordered table-hover homepage-forum-table" >
+    {% if favourites %}
+    <tr class="title-bar">
+            <td colspan="3">Favourites</td>
+    </tr>
+    {% for forum in favourites %}
+        <tr class="active">
+            <td class="forum-name"><a href="{% url 'sub_forum' forum.name %}">{{forum.name}}</td>
+            <td>{{forum.description}}</td>
+            <td>Moderators: 
+                {% for userinfo in forum.moderator_list%}
+                    <a href="{% url 'user_profile' userinfo.user.username %}" class="forum-moderator">{{userinfo.user.username}}</a>
+                {% endfor %}
+            </td>
+        </tr>
+    {% endfor %}
+    {% endif %}
+</table>
+
+
+<table class="table table-bordered homepage-forum-table" >
+    <tr class="title-bar">
+        <form action="{% url 'search_topic' %}" method="post">
+            <td colspan="3" class="form-inline">
+                Forums
+                {% if user and user.is_active %}
+                <div class="aligh-right">
+                    {{form.key_words}} 
+                    <select name="tag" class="form-control">
+                        {% for tag in tags %}
+                        <option value="{{tag}}">{{tag}}</option>
+                      {% endfor %}
+                    </select>
+                    <button type="submit" value="submit" class="btn font-black">
+                        <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                    </button>
+                    <a href="{% url 'advanced_search' -1 %}" class="btn btn-primary btn-search">Advanced</a>
+                </div>
+                {% else %}
+                {% endif %}
+                {% csrf_token %}
+            </td>
+        </form>
+    </tr>
+    {% for forum_row in forums %}
+    <tr class="active forum-body">
+        {% for forum in forum_row%}
+            <td>
+                <ul class="forum-info">
+                    <li><a href="{% url 'sub_forum' forum.name %}" class="forum-name">{{forum.name}}</a></li>
+                    <li class="thread-count">Today's topics: {{forum.num_threads}}</li>
+                    <li>Moderators:</li>
+                    <li>
+                        {% for userinfo in forum.moderator_list%}
+                            <a href="{% url 'user_profile' userinfo.user.username %}" class="forum-moderator">{{userinfo.user.username}}</a>
+                        {% endfor %}
+                    </li>
+                </ul>
+            </td>
+        {% endfor %}
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

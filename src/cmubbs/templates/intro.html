@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>CMU BBS</title>
+
+    {% load staticfiles %}
+    <!-- Bootstrap core CSS -->
+    <link type="text/css"  href="{% static 'css/bootstrap.css' %}" rel="stylesheet">
+    <link type="text/css" href="{% static 'css/cmubbs.css' %}" rel="stylesheet">
+    <link type="text/css"  href="{% static 'css/landing-page.css' %}" rel="stylesheet">
+    <link type="text/css"  href="{% static 'css/font-awesome.min.css' %}" rel="stylesheet">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-fixed-top topnav" role="navigation">
+        <div class="container topnav">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="#start">Start</a>
+                    </li>
+                    <li>
+                        <a href="#about">About</a>
+                    </li>
+                    <li>
+                        <a href="#contact">Contact Us</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <!-- Login Modal -->
+    <div class="modal fade text-center" id="login-modal" tabindex="-1" role="dialog">
+       <div class="modal-dialog" role="document" style="display: inline-block; ">
+        <div class="modal-content">
+          
+          <div id="auth-forms">
+            <form id="login-form" action="{% url 'nav_login' %}" method="post">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">User Login</h4>
+              </div>
+              <div class="modal-body">
+                <input name="username" class="form-control" type="text" placeholder="Username" required>
+                <input name="password" class="form-control" type="password" placeholder="Password" required>
+                <div id="text-login-msg"></div>
+                {% csrf_token %} 
+              </div>
+              <div class="modal-footer">
+                <button type="submit" class="btn btn-lg btn-primary btn-block">Login</button>
+                <a class="btn btn-link" href= {% url "reset_password" %}>Forget password?</a>
+                <div>Do not have an account?<button id="login-register-btn" type="button" class="btn btn-link">Register</button></div>
+              </div>
+            </form>
+            <form id="register-form" action="{% url 'register' %}" method="post" style="display:none;">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">User Register</h4>
+              </div>
+
+              <div id="register-inputs" class="modal-body">
+                <input name="username" class="form-control" type="text" placeholder="Username" required>
+                <input name="password1" class="form-control" type="password" placeholder="Password" required>
+                <input name="password2" class="form-control" type="password" placeholder="Confirm Password" required>
+                <input name="email" class="form-control" type="text" placeholder="E-mail" required>
+                <div id="text-register-msg"></div>
+                {% csrf_token %} 
+              </div>
+             
+              <div class="modal-footer">
+                <button type="submit" class="btn btn-lg btn-primary btn-block">Register</button>
+                <div>Already have an account?<button id="register-login-btn" type="button" class="btn btn-link">Login</button></div>
+              </div>
+              
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Header -->
+    <a name="start"></a>
+    <div class="intro-header">
+        <div class="container">
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="intro-message">
+                        <h1>CMU &nbsp BBS</h1>
+                        <h3>My heart is in the BBS! </h3>
+                        <hr class="intro-divider">
+                        <ul class="list-inline intro-social-buttons">
+                            <li>
+                                <a href="" data-toggle="modal" data-target="#login-modal" class="btn btn-default btn-lg"><span class="network-name">Login</span></a>
+                            </li>
+                            <li>
+                                <a href="{% url 'cmu_home' %}" class="btn btn-default btn-lg"><span class="network-name">Visit as a guest</span></a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!-- /.container -->
+
+    </div>
+    <!-- /.intro-header -->
+
+    <!-- Page Content -->
+
+	<a  name="about"></a>
+    <div class="content-section-a">
+
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-5 col-sm-6">
+                    <hr class="section-heading-spacer">
+                    <div class="clearfix"></div>
+                    <h2 class="section-heading">Share life in CMU</h2>
+                    <p class="lead">You can get all information of the life in CMU. Have problems on homeworks or course registration? Come and talk with other students!</p>
+                </div>
+                <div class="col-lg-5 col-lg-offset-2 col-sm-6">
+                    {% load staticfiles %}
+                    <img class="img-responsive" src="{% static 'images/intro-1.jpg' %}" alt="Share Life">
+                </div>
+            </div>
+
+        </div>
+        <!-- /.container -->
+
+    </div>
+    <!-- /.content-section-a -->
+
+    <div class="content-section-b">
+
+        <div class="container">
+
+            <div class="row">
+                <div class="col-lg-5 col-lg-offset-1 col-sm-push-6  col-sm-6">
+                    <hr class="section-heading-spacer">
+                    <div class="clearfix"></div>
+                    <h2 class="section-heading">Find people with same interests</h2>
+                    <p class="lead">Feel lonely just because cannot find people to play with? Don't worry! In CMU BBS, you can easily join or create an event. Travel, Gaming, Party... Anything you can imagine!</p>
+                </div>
+                <div class="col-lg-5 col-sm-pull-6  col-sm-6">
+                    {% load staticfiles %}
+                    <img class="img-responsive" src="{% static 'images/intro-2.png' %}" alt="Share Interest">
+                </div>
+            </div>
+
+        </div>
+        <!-- /.container -->
+
+    </div>
+    <!-- /.content-section-b -->
+
+    <div class="content-section-a">
+
+        <div class="container">
+
+            <div class="row">
+                <div class="col-lg-5 col-sm-6">
+                    <hr class="section-heading-spacer">
+                    <div class="clearfix"></div>
+                    <h2 class="section-heading">Anonymous Chatting</h2>
+                    <p class="lead">Have lots of gossips or complains but just can't say? Here is the place you can talk freely!</p>
+                </div>
+                <div class="col-lg-5 col-lg-offset-2 col-sm-6">
+                    {% load staticfiles %}
+                    <img class="img-responsive" src="{% static 'images/intro-3.jpg' %}" alt="Anonymous Chatting">
+                </div>
+            </div>
+
+        </div>
+        <!-- /.container -->
+
+    </div>
+    <!-- /.content-section-a -->
+	<a  name="contact"></a>
+    <div class="banner">
+
+        <div class="container">
+
+            <div class="row">
+                <div class="col-lg-6">
+                    <h2>Cantact Us:</h2>
+                </div>
+                <div class="col-lg-6">
+                    <ul class="list-inline banner-social-buttons">
+                        <li>
+                            <a href="https://www.linkedin.com/pub/bowen-zhu/a2/2b3/7bb" class="btn btn-default btn-lg"><span class="network-name">Bowen</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.linkedin.com/pub/linxi-zou/64/9b2/202" class="btn btn-default btn-lg"><span class="network-name">Linxi</span></a>
+                        </li>
+                        <li>
+                            <a href="https://www.linkedin.com/pub/zhengyang-ruan/98/500/418/en" class="btn btn-default btn-lg"><span class="network-name">Zhengyang</span></a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+        <!-- /.container -->
+    </div>
+    <!-- /.banner -->
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <p class="copyright text-muted small">Copyright &copy; BiYeMaiJianBing 2015. All Rights Reserved</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScripts -->
+    {% load staticfiles %}
+    <script type="text/javascript" src="{% static 'js/jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/cmubbs.js' %}"></script>
+
+</body>
+
+</html>

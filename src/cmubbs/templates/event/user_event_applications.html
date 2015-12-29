@@ -1,0 +1,63 @@
+<!--Event Applications-->
+{% if event_applications %}
+<table class='table table-bordered table-hover application-table' >	
+	<tr class='title-bar'>
+		<td>Event</td>
+		<td>Application Message</td>
+		<td>Applicant</td>
+		<td>Response</td>
+	</tr>
+	{% for application in event_applications %}
+		<tr class='active'>
+			<td>
+				<a href='{% url 'in_topic' application.event.topic.id %}'>{{application.event.topic.title}}</a> ({{application.event.participants.all|length}}/{{application.event.max_participants}})</td>
+			<td>
+				{{application.message|linebreaks}} 
+			</td>
+			<td>{{application.applicant}}</td>
+			<td>
+				<a href='#event_applications' onClick='acceptApplication(\"{% url 'accept_event_application' application.id %}\", \"{% url 'user_event_applications' %}\")'><span class='glyphicon glyphicon-ok'></span> Accept </a>
+				<a href='#event_applications' onClick='declineApplication(\"{% url 'decline_event_application' application.id %}\", \"{% url 'user_event_applications' %}\")'><span class='glyphicon glyphicon-remove'></span> Decline </a>
+			</td>
+		</tr>
+	{% endfor %}	
+</table>
+<div class='pagination topic-right'>
+    <span class='step-links'>
+		<ul class='pager list-inline'>
+	        {% if event_applications.has_previous %}
+	        <li>
+	        	<a href='#event_applications?page={{ event_applications.previous_page_number }}' onClick=\"profileSidebar('{% url 'user_event_applications' %}?page={{ event_applications.previous_page_number }}')\" class='page-btn'>
+	            	<span class='glyphicon glyphicon-triangle-left' aria-hidden='true'></span>
+	            </a>
+	        </li>
+	        {% endif %}
+	        <li><span class='current'>Page {{ event_applications.number }} of {{ event_applications.paginator.num_pages }}.</span></li>
+	        {% if event_applications.has_next %}
+	        <li>
+	        	<a href='#event_applications?page={{ event_applications.next_page_number }}' onClick=\"profileSidebar('{% url 'user_event_applications' %}?page={{ event_applications.next_page_number }}')\" class='page-btn'>
+	            	<span class='glyphicon glyphicon-triangle-right' aria-hidden='true'></span>
+	            </a>
+	        </li>
+	        {% endif %}
+	        <li>
+	    		<select id='page-selector' name='page_num' class='page-select'>
+				{% for page_index in pages %}
+					{% if page_index %}
+					<option value='{{forloop.counter}}' selected='selected'>{{forloop.counter}}</option>
+					{% else %}
+				  	<option value='{{forloop.counter}}'>{{forloop.counter}}</option>
+				  	{% endif %}
+				 {% endfor %}
+				</select>
+			</li>
+			<li>
+				<button class='btn btn-default go-btn' aria-label='Left Align' onClick=\"gotoPage('{% url 'user_event_applications' %}')\">Go</button>
+			</li>
+		</ul>
+    </span>
+</div>
+{% else %}
+<p> You have no event applications now. </p>
+{% endif %}
+

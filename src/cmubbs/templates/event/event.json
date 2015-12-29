@@ -1,0 +1,1 @@
+{"lat":{{event.location.lat}}, "lng":{{event.location.lng}}, "map_html":"{% spaceless %}{% autoescape off %}{% include 'event/map_event.html' %}{% endautoescape %}{% endspaceless %}"}

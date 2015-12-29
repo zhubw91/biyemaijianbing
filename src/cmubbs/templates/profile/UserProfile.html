@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}User Profile{% endblock title %}
+{% block body %}
+{% load staticfiles %}
+<script type="text/javascript" src="{% static 'js/user_profile.js' %}"></script>
+<div class="container">
+    <div class="row profile">
+        <div class="col-md-3">
+            <div class="profile-sidebar">
+                <!-- SIDEBAR USERPIC -->
+                <div class="profile-userpic">
+                    <img src="{% url 'profile_photo' user_info.user.username %}" alt="{{user_info.user.username}}" class="img-responsive large">
+                </div>
+                <!-- END SIDEBAR USERPIC -->
+                <!-- SIDEBAR USER TITLE -->
+                <div class="profile-usertitle">
+                    <div class="profile-usertitle-name">
+                        {{user_info.user.username}}
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="row profile-usertitle-follownum">
+                            <a href="#" onClick="profileSidebar('{% url 'show_follow' user_info.user.username '0' %}')">{{ user_info.num_follows }}</a>
+                            </div>
+                            <div class="row profile-usertitle-followtitle">
+                                Following
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="row profile-usertitle-follownum" id="num_followers">
+                            <a href="#" onClick="profileSidebar('{% url 'show_follow' user_info.user.username '1' %}')">{{ user_info.num_followers }}</a>
+                            </div>
+                            <div class="row profile-usertitle-followtitle">
+                                Followers
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-usertitle-job">
+                    </div>
+                </div>
+                <!-- END SIDEBAR USER TITLE -->
+                <!-- SIDEBAR BUTTONS -->
+                {% if user and user.is_active and if_self == False %}
+                <div class="profile-userbuttons">
+                    <a id="unfollow-btn" href="#" onclick="unfollow('{% url 'unfollow' user_info.user.username %}')" type="button" class="btn btn-warning btn-sm" {% if not user_info in user_follows %} style="display:none;" {%endif%} >Unfollow</a>
+                    <a id="follow-btn" href="#" onclick="follow('{% url 'follow' user_info.user.username %}')" type="button" class="btn btn-success btn-sm" {% if user_info in user_follows %} style="display:none;" {%endif%}>Follow</a>
+
+                    <a href="{% url 'get_messages_with' user_info.user.username %}" type="button" class="btn btn-danger btn-sm">Message</a>
+                </div>
+                {% endif %}
+                <!-- END SIDEBAR BUTTONS -->
+                <!-- SIDEBAR MENU -->
+                {% block profile_menu %}
+                <div class="profile-usermenu">
+                    <ul class="nav">
+                        <li id="about-nav" class="active">
+                            <input id="userinfo-url" type="hidden" value={% url "get_user_info" user_info.user.username %}>
+                            <a href="#about" onClick="profileSidebar('{% url 'get_user_info' user_info.user.username %}')" >
+                            <i class="glyphicon glyphicon-user"></i>
+                            About </a>
+                        </li>
+                        {% if user and user.is_active and if_self %}
+                        <li>
+                            <input id="edit-profile-url" type="hidden" value={% url 'edit_profile' %}>
+                            <a href="#edit_profile" onClick="profileSidebar('{% url 'edit_profile' %}')">
+                            <i class="glyphicon glyphicon-edit"></i>
+                            Edit Profile </a>
+                        </li>
+                        <li>
+                            <input id="collections-url" type="hidden" value={% url 'collections' %}>
+                            <a href="#collections" onClick="profileSidebar('{% url 'collections' %}')">
+                            <i class="glyphicon glyphicon-book"></i>
+                            Favourites </a>
+                        </li> 
+                        {% endif %}
+                        <li>
+                            <input id="activities-url" type="hidden" value={% url 'activities' user_info.user.username %}>
+                            <a href="#activities" onClick="profileSidebar('{% url 'activities' user_info.user.username %}')">
+                            <i class="glyphicon glyphicon-globe"></i>
+                            Activities </a>
+                        </li>
+                        <li  data-toggle="collapse" data-target="#event-list" class="collapsed">
+                            <a href="#"> <i class="glyphicon glyphicon-list-alt"></i> Events <span class="glyphicon glyphicon-menu-down pull-right"></span></a>
+                        </li>
+
+                        <ul class="nav collapse" id="event-list">
+                            {% ifequal user_info.user.username user.username %}
+                            <li>
+                                <input id="event-applications-url" type="hidden" value={% url "user_event_applications" %}>
+                                <a href="#event_applications" onClick="profileSidebar('{% url 'user_event_applications' %}')"><i class="glyphicon glyphicon-menu-right"></i> Applications</a>
+                            </li>
+                            {% endifequal %}
+                            <li> 
+                                <input id="events-url" type="hidden" value={% url "user_own_events" user_info.user.username %}>
+                                <a href="#events" onClick="profileSidebar('{% url 'user_own_events' user_info.user.username %}')"><i class="glyphicon glyphicon-menu-right"></i> Managing Events </a>
+                            </li>
+                            <li>
+                                <input id="participating-events-url" type="hidden" value={% url "user_participating_events" user_info.user.username%}>
+                                <a href="#participating_events" onClick="profileSidebar('{%url 'user_participating_events' user_info.user.username %}')"><i class="glyphicon glyphicon-menu-right"></i> Participating Events</a>
+                            </li>
+                        </ul>
+                        
+                    </ul>
+                </div>
+                {% endblock %}
+                <!-- END MENU -->
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div id="profile-content" class="profile-content">
+                <div id="basic-info-div">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<br>
+<br>
+
+{% endblock body %}

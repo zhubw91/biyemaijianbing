@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}New Event{% endblock %}
+{% block body %}
+	<form action="{% block actionurl %}{% url 'create_event' forum.name %}{% endblock %}" method="post">
+		<table class="table table-bordered table-hover post-table" >
+			<tr>
+				<td>
+					<div class="form-inline">
+						Tag:
+						<label> Event </label>
+						Title: {{form.title}}
+					</div>
+					<div class="error">{{form.title.errors}}</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					{{form.description}}
+					<div class="error">{{form.description.errors}}</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div class="form-inline"> 
+						Where: {{form.formatted_address}} 
+						<a href="#" class="button" data-toggle="modal" data-target="#map-modal">Select Address on Google Map</a>
+						
+					</div>
+					<div class="error">{{form.formatted_address.errors}}</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div class="form-inline">
+						When: {{form.start}} - {{form.end}}
+					</div>
+					<div class="error">{{form.start.errors}}{{form.end.errors}}</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div class="form-inline">
+						{{form.max_participants.label}}: {{form.max_participants}}
+					</div>
+					<div class="error">{{form.max_participants.errors}}</div>
+				</td>
+			</tr>
+			{% block extendtable %}{% endblock %}
+			<tr>
+				<td>
+					<div class="form-inline"> {{form.public}} {{form.public.label}}</div>
+					<div class="error">{{form.public.errors}}</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<button type="submit" value="submit" class="btn btn-primary">{% block submitbtnval %} Post {% endblock %}</button>
+					<a class="button btn btn-default" href="{% block backurl %}{% url 'in_forum' forum.name %}{% endblock %}">Cancel</a>
+				</td>
+			</tr>
+			{% for field in form.hidden_fields %}
+			  {{field}}
+			  <div class="error">{{field.error}}</div>
+			{% endfor %}
+			{% csrf_token %}
+		</table>
+	</form>
+	{% load staticfiles %}
+	<script type="text/javascript" src="http://maps.google.com/maps/api/js?libraries=places" ></script>
+	<script type="text/javascript" src="{% static 'js/markerclusterer.js' %}" ></script>
+	<script type="text/javascript" src="{% static 'js/google_map_api.js' %}"></script>
+	<script type="text/javascript" src="{% static 'js/create_event.js' %}"></script>
+	<div id="map-modal" class="modal fade text-center" role="dialog">
+		<div class="modal-dialog" role="document" style="display: inline-block; ">
+	        <div class="modal-content inline-block">
+				<div id="search-div" class="inline-block">
+					<input class="controls address-search-input" type="text" id="google_address" placeholder="Enter Address"/>
+					
+				</div>
+				
+				<button id="close-btn" type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<div id="map_inforum" class="map_inforum" ></div>
+			</div>
+		</div>
+	</div>
+	{% block extendmodal %}{% endblock %}
+{%endblock%}

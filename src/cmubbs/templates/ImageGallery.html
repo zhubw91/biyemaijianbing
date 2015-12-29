@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}{{forum_name}}{% endblock %}
+{% block urls %}
+<input id="load-events-url" type="hidden" value={% url "load_events" forum.name%}>
+{% endblock %}
+{% block body %}
+<ol class="breadcrumb red-border">
+  <li><a href="{% url 'cmu_home' %}"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+  <li><a href="{% url 'sub_forum' forum.father_forum.name %}">{{forum.father_forum.name}}</a></li>
+  <li class="active">{{forum.name}}</li>
+</ol>
+
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css"  href="http://blueimp.github.io/Gallery/css/blueimp-gallery.min.css" >
+<link rel="stylesheet" type="text/css"  href={% static 'css/bootstrap-image-gallery.min.css' %} >
+<script type="text/javascript"  src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script type="text/javascript"  src="http://blueimp.github.io/Gallery/js/jquery.blueimp-gallery.min.js"></script>
+<script type="text/javascript"  src={% static 'js/bootstrap-image-gallery.min.js' %}></script>
+<script type="text/javascript"  src={% static 'js/image_gallery.js' %}></script>
+
+	<table class="table table-bordered session-table" >
+		<tr class="sub-title-bar">
+			<td colspan="1">
+				<ul class="non-dot-li">
+					<li>
+						<b class="forum-name">{{forum.name}}</b>
+						{% if user and user.is_active %}
+							<a href="#" data-toggle="tooltip" data-placement="top" title="unfavourite this forum">
+              	<span class="glyphicon glyphicon-star" id="dislike-forum-btn" {% if not favorite %} style="display:none;" {%endif%} onClick="dislikeForum('{% url 'dislike_forum' forum.name %}')"> </span>
+              </a>
+              
+              <a href="#" data-toggle="tooltip" data-placement="top" title="favourite this forum">
+              	<span class="glyphicon glyphicon-star-empty" id="favorite-forum-btn" {% if favorite %} style="display:none;" {%endif%} onClick="favoriteForum('{% url 'favorite_forum' forum.name %}')"> </span>
+              </a>
+            
+         		{% endif %}
+         		{% if secret %}
+         		{% elif user and user.is_active%}
+	         		<form action="{% url 'search_topic' forum.name%}" method="post" class="form-inline aligh-right">
+								{{form.key_words}} 
+								<select name="tag" class="form-control">
+									{% for tag in tags %}
+								  	<option value="{{tag}}">{{tag}}</option>
+								  {% endfor %}
+								</select>
+								<button type="submit" value="submit" class="btn font-black">
+									<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+								</button>
+								<a href="{% url 'advanced_search' forum.id %}" class="btn btn-primary btn-search">Advanced</a>
+							{% csrf_token %}
+							</form>
+						{% else %}
+						{% endif %}
+					</li>
+					<li>{{forum.description}}</li>
+				</ul>
+			</td>
+			<td colspan="6" rowspan="2">
+				<ul class="list-unstyled">
+					<li>Moderators: 
+						{% for userinfo in forum.moderator_list%}
+							<a href="{% url 'user_profile' userinfo.user.username %}" class="forum-moderator font-white">{{userinfo.user.username}}</a>
+						{% endfor %}
+					</li>
+					<li class="thread-count font-white">Today's topics: {{forum.num_threads}}</li>
+				</ul>
+			</td>
+		</tr>
+		<tr class="title-bar">
+			<td colspan="1">
+				Image Gallery
+				<a href="?filter_tag=images" class="forum-moderator aligh-right keep-space font-white">
+					<span class="glyphicon glyphicon glyphicon-picture"></span>Images
+				</a>
+				{% for tag in topic_tags%}
+					<a href="?filter_tag={{tag.name}}" class="forum-moderator font-white aligh-right keep-space">{{tag.name}}</a>
+				{% endfor %}
+				<a href="?filter_tag=good" class="forum-moderator aligh-right keep-space empty-heart">Good</a>
+				<a href="?filter_tag=all" class="forum-moderator aligh-right keep-space font-white">All</a>
+			</td>
+		</tr>
+		<tr class="image-gallery-tr">
+			<td colspan="7">
+				<div id="links">
+					{% for image in images %}
+						<a href="{% url 'post_images' image.id %}" data-gallery>
+							<img src="{% url 'post_images' image.id %}" alt="Image{{image.id}}" class="gallery-image">
+						</a>
+					{% endfor %}
+				</div>
+			</td>
+		</tr>
+		</table>
+
+
+<div id="blueimp-gallery" class="blueimp-gallery" data-use-bootstrap-modal="false">
+  <!-- The container for the modal slides -->
+    <div class="slides"></div>
+    <!-- Controls for the borderless lightbox -->
+    <h3 class="title"></h3>
+    <a class="prev">‹</a>
+    <a class="next">›</a>
+    <a class="close">×</a>
+    <a class="play-pause"></a>
+    <ol class="indicator"></ol>
+    <!-- The modal dialog, which will be used to wrap the lightbox content -->
+    <div class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title"></h4>
+                </div>
+                <div class="modal-body next"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left prev">
+                        <i class="glyphicon glyphicon-chevron-left"></i>
+                        Previous
+                    </button>
+                    <button type="button" class="btn btn-primary next">
+                        Next
+                        <i class="glyphicon glyphicon-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

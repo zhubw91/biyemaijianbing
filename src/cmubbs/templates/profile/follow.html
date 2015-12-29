@@ -1,0 +1,9 @@
+<div>
+    {% for user_to_show in follow_to_show %}
+        <ul class='non-dot-li col-md-4'>
+        <li><a href=\"{% url 'user_profile' user_to_show.user.username %}\"><img src=\"{% url 'profile_photo' user_to_show.user.username %}\" alt='{{topic.user.username}}' class='userPic'></a></li>
+        <li class='profile-usertitle-name'><a href=\"{% url 'user_profile' user_to_show.user.username %}\">{{ user_to_show.user.username }}</a></li>
+        <br>
+        </ul>
+    {% endfor %}
+</div>

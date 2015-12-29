@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Messages{% endblock %}
+{% block body %}
+<ol class="breadcrumb red-border">
+  <li><a href="{% url 'cmu_home' %}"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+  <li class="active"><span class="glyphicon glyphicon-envelope"></span> Messages</li>
+</ol>
+	<table class="table table-bordered table-hover session-table" >
+		<tr class="title-bar">
+			<td>Recent Messages
+				<div class="aligh-right">
+                    <form method='post' action="{% url 'get_all_messages' %}" class="form-inline aligh-right">
+						{{ messageto_form.text }}
+						<button type="submit" class='btn btn-primary btn-search'>Start Chat</button>
+						<div>{{ messageto_form.text.errors}}</div>
+						{% csrf_token %}
+					</form>   
+                </div>
+			</td>
+			<td>User</td>
+			<td>Last message time</td>
+		</tr>
+		{% for message in messages %}
+			{% if message.has_new_unread_messages %}
+			<tr class="active" id="unread">
+			{% else %}
+			<tr class="active">
+			{% endif %}
+				<td><a href="{% url 'get_messages_with' message.user.username %}">{{ message.message_to_show }}</td>
+				<td><a href="{% url 'user_profile' message.user.username %}">{{ message.user.username }}</td>
+				<td>{{ message.recently_message.created_on|date:"M. d, Y" }}, {{ message.recently_message.created_on|time:"H:i" }}</td>
+			</tr>
+		{% endfor %}
+	</table>
+	
+{% endblock %}

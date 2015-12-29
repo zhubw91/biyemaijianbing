@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}Search Results{% endblock %}
+
+{% block body %}
+<ol class="breadcrumb red-border">
+  <li><a href="{% url 'cmu_home' %}"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+  {% if forum.father_forum %}
+  	<li><a href="{% url 'sub_forum' forum.father_forum.name %}">{{forum.father_forum.name}}</a></li>
+  	<li><a href="{% url 'in_forum' forum.name %}">{{forum.name}}</a></li>
+  {% elif forum%}
+  	<li><a href="{% url 'sub_forum' forum.name %}">{{forum.name}}</a></li>
+  {% else %}
+  {% endif %}
+  <li class="active">Results</li>
+</ol>
+
+	<table class="table table-bordered table-hover session-table" >
+		<tr class="sub-title-bar">
+			<td colspan="3">
+				<ul class="non-dot-li">
+					<li>
+						<a class="forum-name font-white">Search Results:</a>
+						{% if user and user.is_active%}
+							{% if forum %}
+							<form action="{% url 'search_topic' forum.name %}" method="post" class="form-inline aligh-right">
+							{% else %}
+							<form action="{% url 'search_topic' %}" method="post" class="form-inline aligh-right">
+							{% endif %}
+								{{form.key_words}} 
+								<select name="tag" class="form-control">
+									{% for tag in tags %}
+								  	<option value="{{tag}}">{{tag}}</option>
+								  {% endfor %}
+								</select>
+								<button type="submit" value="submit" class="btn font-black">
+									<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+								</button>
+								<a href="{% url 'advanced_search' forum.id %}" class="btn btn-primary btn-search">Advanced</a>
+							{% csrf_token %}
+							</form>
+						{% else %}
+						{% endif %}
+					</li>
+					{% if advanced %}
+					{% else %}
+						<li>Key words [{{tag}}] : {{key_words}}</li>
+					{% endif %}
+				</ul>
+			</td>
+			<td colspan="4">
+				<ul class="non-dot-li">
+					<li>Number of Results: {{num_results}}</li>
+				</ul>
+			</td>
+		</tr>
+		<tr class="title-bar">
+			<td>Title</td>
+			<td>Author</td>
+			<td>Last Reply</td>
+			<td>View</td>
+			<td>Comments</td>
+			<td>Like</td>
+			<td>Created On</td>
+		</tr>
+		{% for topic in topics %}
+			<tr class="active">
+				<td class="topic-tag">
+					<a href="{% url 'in_topic' topic.id %}" class="topic-title">{{topic.title}}</a>
+						{% for tag in topic.tag_list %}
+							[{{tag.name}}]
+						{% endfor %}
+				</td>
+				<td><a href="{% url 'user_profile' topic.user.username %}">{{topic.user.username}}</td>
+				<td><a href="{% url 'user_profile' topic.last_reply %}">{{topic.last_reply}}</td>
+				<td>{{topic.view_count}}</td>
+				<td>{{topic.comments}}</td>
+				<td>{{topic.like_count}}</td>
+				<td>{{topic.created_on}}</td>
+			</tr>
+		{% endfor %}
+		</table>
+		{% if not advanced%}
+			{% if forum %}
+			<form action="{% url 'search_topic' forum.name %}" method="post" class="form-inline">
+			{% else %}
+			<form action="{% url 'search_topic' %}" method="post" class="form-inline">
+			{% endif %}
+				{% csrf_token %}
+				<input type="hidden" name="tag" value="{{tag}}">
+				<input type="hidden" name="key_words" value="{{key_words}}">
+
+				<div class="pagination topic-right">
+				    <span class="step-links">
+				    		<ul class="pager list-inline">
+					        {% if topics.has_previous %}
+					            <li><button type="submit" name="goto_page" value="{{ topics.previous_page_number }}" class="btn btn-default go-btn">
+					            	<span class="glyphicon glyphicon-triangle-left" aria-hidden="true"></span>
+					            </button></li>
+					        {% endif %}
+
+					        <li><span class="current">
+					            Page {{ topics.number }} of {{ topics.paginator.num_pages }}.
+					        </span></li>
+					        {% if topics.has_next %}
+					            <li><button type="submit" name="goto_page" value="{{ topics.next_page_number }}" class="btn btn-default go-btn">
+					            	<span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
+					            </button></li>
+					        {% endif %}
+						        <li>
+						        	<select name="page_num" class="page-select">
+												{% for page_index in topic_pages %}
+													{% if page_index %}
+														<option value="{{forloop.counter}}" selected="selected">{{forloop.counter}}</option>
+													{% else %}
+											  		<option value="{{forloop.counter}}">{{forloop.counter}}</option>
+											  	{% endif %}
+											  {% endfor %}
+											</select>
+										</li>
+										<li>
+											<button type="submit" class="btn btn-default go-btn" aria-label="Left Align">
+												  Go
+												</button>
+										</li>
+					      </ul>
+				    </span>
+				</div>
+			</form>
+		{% endif %}
+{% endblock %}

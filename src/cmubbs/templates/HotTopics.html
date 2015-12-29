@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Hot Topics{% endblock %}
+{% block body %}
+<ol class="breadcrumb red-border">
+  <li><a href="{% url 'cmu_home' %}"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+  <li class="active"><span class="glyphicon glyphicon-fire"></span> Hot Topics</li>
+</ol>
+	<table class="table table-bordered table-hover session-table" >
+		<tr class="title-bar">
+			<td>Title</td>
+			<td>Forum</td>
+			<td>Author</td>
+			<td>View</td>
+			<td>Comments</td>
+			<td>Like</td>
+			<td>Last Update On</td>
+		</tr>
+		{% for topic in topics %}
+			<tr class="active">
+				<td>
+						<a href="{% url 'in_topic' topic.id %}">{{forloop.counter}}. {{topic.title}}
+					</td>
+					<td><a href="{% url 'sub_forum' topic.forum.name %}">{{topic.forum.name}}</td>
+				{% if topic.forum.secret %}
+					<td>Annonymous</td>
+				{% else %}
+					<td><a href="{% url 'user_profile' topic.user.username %}">{{topic.user.username}}</td>
+				{% endif %}
+				<td>{{topic.view_count}}</td>
+				<td>{{topic.comments}}</td>
+				<td>{{topic.like_count}}</td>
+				<td>{{topic.get_time_lastreply}}</td>
+			</tr>
+		{% endfor %}
+	</table>
+{% endblock %}

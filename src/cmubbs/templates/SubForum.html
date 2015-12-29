@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}{{father_forum_name}}{% endblock %}
+{% block body %}
+<ol class="breadcrumb red-border">
+  <li><a href="{% url 'cmu_home' %}"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+  <li class="active">{{father_forum_name}}</li>
+</ol>
+
+	{% if message %}
+		{{message}}
+	{% else %}
+		<table class="table table-bordered table-hover sub-forum-table" >
+			<tr class="sub-title-bar">
+				<td colspan="2">
+					<ul class="list-unstyled">
+						<li>
+							<b href=""  class="forum-name">{{father_forum.name}}</b>
+								{% if user and user.is_active %}
+									<a href="#" data-toggle="tooltip" data-placement="top" title="un-favourite this forum">
+	                	<span class="glyphicon glyphicon-star"  id="dislike-forum-btn" class="btn btn-primary btn-favourite" {% if not favorite %} style="display:none;" {%endif%} onClick="dislikeForum('{% url 'dislike_forum' father_forum.name %}')"></span>
+	                </a>
+	                
+	                <a href="#" data-toggle="tooltip" data-placement="top" title="favourite this forum">
+	                	<span class="glyphicon glyphicon-star-empty" id="favorite-forum-btn" class="btn btn-success btn-favourite" {% if favorite %} style="display:none;" {%endif%} onClick="favoriteForum('{% url 'favorite_forum' father_forum.name %}')"></span>
+	                </a>
+	           		{% endif %}
+
+			          {% if secret %}
+			          {% elif user and user.is_active %}
+				          <form action="{% url 'search_topic' father_forum.name%}" method="post" class="form-inline aligh-right">
+										{{form.key_words}} 
+										<select name="tag" class="form-control">
+											{% for tag in tags %}
+										  	<option value="{{tag}}">{{tag}}</option>
+										  {% endfor %}
+										</select>
+										<button type="submit" value="submit" class="btn font-black">
+											<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+										</button>
+										<a href="{% url 'advanced_search' father_forum.id %}" class="btn btn-primary btn-search">Advanced</a>
+									{% csrf_token %}
+									</form>
+								{% else %}
+								{% endif %}
+						</li>
+						<li>{{father_forum.description}}</li>
+					</ul>
+				</td>
+				<td colspan="2">
+					<ul class="list-unstyled">
+						<li>Moderators: 
+							{% for userinfo in father_forum.moderator_list%}
+								<a href="{% url 'user_profile' userinfo.user.username %}" class="forum-moderator font-white">{{userinfo.user.username}}</a>
+							{% endfor %}
+						</li>
+						<li class="thread-count font-white">Today's topics: {{father_forum.num_threads}}</li>
+					</ul>
+				</td>
+			</tr>
+			{% for forum in sub_forums %}
+				<tr class="active">
+					<td class="forum-name"><a href="{% url 'in_forum' forum.name %}">{{forum.name}}</td>
+					<td>{{forum.description}}</td>
+					<td>Today's topics: {{forum.num_threads}}</td>
+					<td>
+						<ul class="list-unstyled">
+							<li>Moderator:</li>
+							<li>
+								{% for userinfo in forum.moderator_list%}
+									<a href="{% url 'user_profile' userinfo.user.username %}" class="forum-moderator">{{userinfo.user.username}}</a>
+								{% endfor %}
+							</li>
+						</ul>
+					</td>
+				</tr>
+			{% endfor %}
+		</table>
+	{% endif %}
+
+{% endblock %}

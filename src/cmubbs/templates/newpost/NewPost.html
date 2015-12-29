@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}New Topic{% endblock %}
+{% block body %}
+	{% load staticfiles %}
+	<script type="text/javascript" src="{% static 'js/new_posts.js' %}"></script>
+	<form action="{% block actionurl %}{% url 'new_post' forum.name %}{% endblock actionurl %}" method="post" enctype="multipart/form-data">
+		<table class="table table-bordered table-hover post-table" >
+			<tr>
+				<td colspan="2">
+					<div class="form-inline">
+						
+						Title: {{form.post_title}}
+						Tag:
+						{% block tagcontent %}
+						<label> Normal </label>
+						{% endblock tagcontent %}
+						<div class="btn btn-primary btn-font space-left" onclick="change_plain_text()" id="plain-text-div" title="post-topic">{{form.plain_text}}{{form.plain_text.label}}</div>
+						<a class="btn btn-primary btn-font space-left" data-toggle="modal" data-target="#preview-post-modal" data-url="{% url 'preview_post' %}" data-text-id="post-body" href="" id="preview-btn"><span class="glyphicon glyphicon-play">Preview</span></a>
+						<a name="font-tag-btn" class="btn btn-primary btn-font space-left" onclick="text_font('b', 'post-body')">
+	            <span class="glyphicon glyphicon-bold"></span></a>
+		        <a  name="font-tag-btn" class="btn btn-primary btn-font" onclick="text_font('i', 'post-body')">
+		          <span class="glyphicon glyphicon-italic"></span></a>
+		        <a  name="font-tag-btn" class="btn btn-primary btn-font" onclick="text_font('big', 'post-body')">
+                <span class="glyphicon glyphicon-font">+</span></a>
+            <a  name="font-tag-btn" class="btn btn-primary btn-font" onclick="text_font('small', 'post-body')">
+                <span class="glyphicon glyphicon-font">-</span></a>
+            <a  name="font-tag-btn" class="btn btn-primary btn-font" onclick="text_font('strike', 'post-body')">
+                <span class="glyphicon"><strike>A</strike></span></a>
+            <a  name="font-tag-btn" class="btn btn-primary btn-font" onclick="text_font('u', 'post-body')">
+                <span class="glyphicon"><u>U</u></span></a>
+            <a  name="font-tag-btn" class="btn btn-primary btn-font" onclick="text_font('mark', 'post-body')">
+                <span class="glyphicon"><mark>A</mark></span></a>
+					</div>
+					<div class="error">{{form.post_title.errors}}</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					{{form.post_body}}
+					
+				</td>
+				<td>
+			  <a class="btn btn-primary btn-add-image" onclick="add_image()">Add Image<span class="space-left glyphicon glyphicon-picture"></span></a>
+			  <ul id="image_list" class="page-btn">
+			  </ul>
+				</td>
+			</tr>
+			{% if form.post_body.errors %}
+			<tr><td colspan=2 ><div class="error">{{form.post_body.errors}}</div></td></tr>
+			{% endif %}
+			{% block extendform %}{% endblock %}
+			<tr>
+				<td colspan="2">
+					<button type="submit" value="submit" class="btn btn-primary"><span class="glyphicon glyphicon-pencil">Post</span></button>
+					<a class="button btn btn-default" href="{% url 'in_forum' forum.name %}">Cancel</a>
+				</td>
+			</tr>
+			{% for field in form.hidden_fields %}
+			  {{field}}
+			  <div class="error">{{field.error}}</div>
+			{% endfor %}
+			{% csrf_token %}
+		</table>
+	</form>
+
+<div class="modal fade text-center" id="preview-post-modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Preview Post</h4>
+      </div>
+      <div class="modal-body">
+        {% autoescape off %}
+            <div id="post-font-text"></div>
+        {% endautoescape %}
+      </div>
+    </div>
+  </div>
+</div>
+	{% block extendcontent %}{% endblock %}
+{% endblock %}

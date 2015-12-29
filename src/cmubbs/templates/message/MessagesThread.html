@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Messages{% endblock %}
+{% block body %}
+<ol class="breadcrumb red-border">
+  <li><a href="{% url 'cmu_home' %}"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+  <li><a href="{% url 'get_all_messages' %}"><span class="glyphicon glyphicon-envelope"></span> Messages</a></li>
+  <li class="active">{{friend.username}}</li>
+</ol>
+    {% for message in messages %}
+    <div class="message-wrap col-lg-12">
+        <div class="msgs-wrap">
+            <div class="media msgs">
+                <a class="pull-left" href="{% url 'user_profile' message.sender.username %}">
+                    <img class="media-object" style="width: 32px; height: 32px;" src="{% url 'profile_photo' message.sender.username %}" alt="{{message.sender.username}}">
+                </a>
+                <div class="media-body">
+                    <small class="pull-right time">{{ message.created_on }}</small>
+
+                    <h5 class="media-heading"><a href="{% url 'user_profile' message.sender.username %}">{{ message.sender.username }}</a></h5>
+                    {% autoescape on %}
+                    <p class="col-lg-10 message-body">{{ message.text|urlize }}</p>
+                    {% endautoescape %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    <form method='post' action="{% url 'get_messages_with' friend.username %}">
+        {% csrf_token %}
+        <table class="table table-bordered table-hover post-table" >
+            <tr>
+                <td>
+                    {{message_form.message_body}}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <button type="submit" class="btn btn-primary">Reply</button>
+                </td>
+            </tr>
+        </table>
+    </form>
+    
+{% endblock %}

@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Advanced Search{% endblock %}
+{% block body %}
+	<form action="{% block actionurl %}{% url 'advanced_search' entry_forum %}{% endblock actionurl %}" method="post">
+		<table class="table table-bordered table-hover post-table" >
+			<tr class="sub-title-bar font-bold text-align-center"><td colspan="2">Advanced Search</td></tr>
+			<tr><td colspan="2">
+				<div class="form-inline font-bold">
+					Time period : {{form.start_date}} - {{form.end_date}}
+					<div class="error">{{form.start_date.errors}}</div>
+					<div class="error">{{form.end_date.errors}}</div>
+				</div>
+			</td></tr>
+
+			<tr><td colspan="2">
+				<div class="font-bold">
+					Main Forums :
+				</div>
+				<div class="radio">
+					<label class="space-left-tag">
+				    <input type="checkbox" class="first_level" name="optionsForumsAll" id="all_forums" value="-1" checked onclick="checkAllForums()">
+				    <span>All</span>
+				  </label>
+				 </div>
+				 <div class="radio">
+					{% for forum in forums%}
+						<div class="sub-form-intend">
+						  <label>
+						    <input type="checkbox" class="first_level" name="optionsForums" value="{{forum.id}}" onclick="checkFatherForums()">
+						    <span>{{forum.name}}</span>
+						  </label>
+						  <div class="sub-form-intend">
+							  {% for subforum in forum.sub_forum.all %}
+								  <label class="space-left-tag sub-forum-tag" style="display:none">
+								    <input type="checkbox" name="optionsForums" value="{{subforum.id}}" onclick="checkSubForums()">
+								    <span>{{subforum.name}}</span>
+								  </label>
+							  {% endfor %}
+							</div>
+						</div>
+					{% endfor %}
+				</div>
+			</td></tr>
+
+			<tr><td colspan="2">
+				<div class="font-bold">
+					Tags :
+				</div>
+				<div class="radio">
+					<label class="space-left-tag">
+				    <input type="checkbox" class="first_level" name="optionsTagsAll" id="all_tags" value="-1" checked onclick="checkAllTags()">
+				    <span>All</span>
+				  </label>
+				</div>
+				<div class="radio sub-form-intend">
+					{% for tag in tags%}
+					  <label class="space-left-tag">
+					    <input type="checkbox" class="first_level" name="optionsTags" value="{{tag.id}}" onclick="uncheckAllTags()">
+					    <span>{{tag.name}}</span>
+					  </label>
+					{% endfor %}
+				</div>
+			</td></tr>
+			<tr>
+				<td class="font-bold name-field">{{form.author.label}}</td>
+				<td>{{form.author}}</td>
+			</tr>
+			<tr>
+				<td class="font-bold name-field">{{form.title.label}}</td>
+				<td>{{form.title}}</td>
+			</tr>
+			<tr>
+				<td class="font-bold name-field">{{form.content.label}}</td>
+				<td>{{form.content}}</td>
+			</tr>
+			<tr><td colspan="2">
+				<button type="submit" value="submit" class="btn btn-primary">
+					<span class="glyphicon glyphicon-search"></span>
+					Search</button>
+				<a class="button btn btn-default space-left" href="{% url 'back_to_forum' entry_forum %}">
+					<span class="glyphicon glyphicon-remove"></span>
+					Cancel</a>
+			</td></tr>
+			{% for field in form.hidden_fields %}
+			  {{field}}
+			  <div class="error">{{field.error}}</div>
+			{% endfor %}
+			{% csrf_token %}
+		</table>
+	</form>
+	{% block extendcontent %}{% endblock %}
+{% endblock %}
